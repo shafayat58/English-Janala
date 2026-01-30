@@ -1,3 +1,16 @@
+
+const creatElement = (arr) => {
+  console.log(arr);
+  const htmlElement = arr.map(el => `<span class="btn">${el}</span>`)
+  return(htmlElement.join(""));
+
+
+}
+
+
+
+
+
 // Load all lessons
 const loadLesson = () => {
   fetch('https://openapi.programming-hero.com/api/levels/all')
@@ -15,12 +28,64 @@ const DisplayLesson = (lessons) => {
   lessons.forEach(item => {
     const Btndiv = document.createElement("div");
     Btndiv.innerHTML = `
-      <button onclick="loadlevelword(${item.level_no})" class="btn btn-outline btn-primary">
+      <button id="lessson-btn-${item.level_no}" onclick="loadlevelword(${item.level_no})" class="btn btn-outline btn-primary lesson-btn">
         <i class="fa-solid fa-book-open"></i> Lesson-${item.level_no}
       </button>
     `;
     levelContainer.appendChild(Btndiv);
   });
+}
+
+const removeActive = () => {
+  document
+    .querySelectorAll(".lesson-btn")
+    .forEach(btn => btn.classList.remove("active"));
+};
+ 
+const loadWordDetails = async(id) => {
+  const url = `https://openapi.programming-hero.com/api/word/${id}`
+  console.log(url);
+  const res = await fetch(url)
+  const details = await res.json()
+  displayWordDetails(details.data);
+  
+  
+}
+
+const displayWordDetails = (word) => {
+  
+  const detailsContainer = document.getElementById("details-container")
+  detailsContainer.innerHTML =
+  `
+   <div class="modal-box">
+      
+<div>
+  <h2 class="text-2xl font-bold">Eager (<i class="fa-solid fa-microphone"></i> :${word.word})</h2>
+</div>
+<div>
+  <h2 class=" font-bold">Meaning</h2>
+  <p>${word.pronunciation}</p>
+</div>
+<div>
+  <h2 class=" font-bold">Example</h2>
+  <p>${word.sentence}</p>
+</div>
+<div>
+  <h2 class=" font-bold">synonym</h2>
+
+  <div class=" ">${creatElement(word.synonyms)}</div>
+  
+</div>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+         
+        
+      </div>
+  `
+  document.getElementById("world_model").showModal();
+
+  
 }
 
 // Load words for a lesson
@@ -31,8 +96,16 @@ const loadlevelword = (id) => {
 
   fetch(url)
     .then(res => res.json())
-    .then(data => Displaylevelword(data.data)) // function call
-    .catch(err => console.error(err));
+    .then(data => {
+     removeActive()
+      const clickBtn = document.getElementById(`lessson-btn-${id}`)
+      // console.log(clickBtn);
+      clickBtn.classList.add("active")
+      
+      Displaylevelword(data.data)
+    
+
+    }) 
 }
 
 // Display words (declared OUTSIDE of loadlevelword)
@@ -59,7 +132,7 @@ const Displaylevelword = (words) => {
         <p class="font-semibold">${item.pronunciation}</p>
         <div class="text-2xl font-medium">"${item.meaning ? item.meaning :"অর্থ পাওয়া যায়নি"}"</div>
         <div class="flex justify-between items-center">
-          <button class="fa-solid fa-circle-info bg-[#1A91FF10]"></button>
+          <button  onclick="loadWordDetails(${item.id})" class="fa-solid fa-circle-info bg-[#1A91FF10]"></button>
           <button class="fa-solid fa-volume-low bg-[#1A91FF10]"></button>
         </div>
       </div>
@@ -70,3 +143,25 @@ const Displaylevelword = (words) => {
 
 
 loadLesson();
+
+
+document.getElementById("btn-search").addEventListener("click", () => {
+  const inputSearch = document.getElementById("input-search")
+  const searchValue = inputSearch.value.trim().toLowerCase();
+  console.log(searchValue);
+  fetch('https://openapi.programming-hero.com/api/words/all')
+  .then(res=>res.json())
+    .then((data) => {
+      const allword = data.data;
+      // console.log(data);
+      console.log(allword);
+      const filterWord = allword.filter((word) => {
+       return word.word.toLowerCase().includes(searchValue)
+      })
+
+      Displaylevelword(filterWord);
+      
+      
+    
+  })
+})

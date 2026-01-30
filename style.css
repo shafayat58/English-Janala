@@ -9,3 +9,8 @@ font-family: "Poppins", sans-serif;
  li {
   list-style: none;
  }
+
+ .active{
+  background-color:#422ad5;
+  color: white;
+ }
