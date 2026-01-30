@@ -8,7 +8,11 @@ const creatElement = (arr) => {
 }
 
 
-
+function pronounceWord(word) {
+  const utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = "en-EN"; // English
+  window.speechSynthesis.speak(utterance);
+}
 
 
 // Load all lessons
@@ -133,7 +137,7 @@ const Displaylevelword = (words) => {
         <div class="text-2xl font-medium">"${item.meaning ? item.meaning :"অর্থ পাওয়া যায়নি"}"</div>
         <div class="flex justify-between items-center">
           <button  onclick="loadWordDetails(${item.id})" class="fa-solid fa-circle-info bg-[#1A91FF10]"></button>
-          <button class="fa-solid fa-volume-low bg-[#1A91FF10]"></button>
+          <button onclick="pronounceWord('${item.word}')" class="fa-solid fa-volume-low bg-[#1A91FF10]"></button>
         </div>
       </div>
     `;
